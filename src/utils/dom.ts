@@ -20,5 +20,6 @@ export function spawnRipple(container: HTMLElement, clientX: number, clientY: nu
 }
 
 export function scrollToSelector(selector: string) {
-  document.querySelector(selector)?.scrollIntoView({ behavior: 'smooth' });
+  const isMobile = window.matchMedia('(max-width: 767px)').matches;
+  document.querySelector(selector)?.scrollIntoView({ behavior: isMobile ? 'auto' : 'smooth' });
 }
