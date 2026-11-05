@@ -27,7 +27,7 @@ import { useEffect, type RefObject } from 'react';
 /** parallax travel, as a share of viewport height, clamped to a sensible pixel range */
 const PARALLAX = { vh: 0.12, minPx: 60, maxPx: 200 };
 /** how quickly the parallax catches up with the scroll position (seconds; lower = tighter) */
-const FOLLOW_SECONDS = 120;
+const FOLLOW_SECONDS = 0;
 /** how much the portfolio panel lags behind the scroll (px), making it feel heavy / slow */
 const PANEL_LAG_PX = 100;
 /** how quickly the panel catches up (seconds; higher = slower, more floaty) */
