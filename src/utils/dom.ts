@@ -19,7 +19,48 @@ export function spawnRipple(container: HTMLElement, clientX: number, clientY: nu
   window.setTimeout(() => el.remove(), 600);
 }
 
+/** ease-in-out-cubic — accelerates gently, decelerates softly, never feels mechanical */
+const easeInOutCubic = (t: number) =>
+  t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+let scrollAnim = 0;
+
+/** animated scroll to a vertical position (desktop only; mobile jumps instantly) */
+function animatedScrollTo(target: number, duration: number) {
+  window.cancelAnimationFrame(scrollAnim);
+  const start = window.scrollY;
+  const distance = target - start;
+  if (distance === 0) return;
+  const startTime = performance.now();
+
+  const step = (now: number) => {
+    const elapsed = now - startTime;
+    const progress = Math.min(1, elapsed / duration);
+    window.scrollTo(0, start + distance * easeInOutCubic(progress));
+    if (progress < 1) scrollAnim = window.requestAnimationFrame(step);
+  };
+  scrollAnim = window.requestAnimationFrame(step);
+}
+
 export function scrollToSelector(selector: string) {
+  const el = document.querySelector(selector);
+  if (!el) return;
+
   const isMobile = window.matchMedia('(max-width: 767px)').matches;
-  document.querySelector(selector)?.scrollIntoView({ behavior: isMobile ? 'auto' : 'smooth' });
+  if (isMobile) {
+    el.scrollIntoView({ behavior: 'auto' });
+    return;
+  }
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduceMotion) {
+    el.scrollIntoView({ behavior: 'auto' });
+    return;
+  }
+
+  const target = el.getBoundingClientRect().top + window.scrollY;
+  const distance = Math.abs(target - window.scrollY);
+  // 800–1400 ms depending on how far we travel — short hops feel snappy, long ones feel grand
+  const duration = Math.min(1400, Math.max(600, distance * 0.6));
+  animatedScrollTo(target, duration);
 }
