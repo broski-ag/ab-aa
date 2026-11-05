@@ -28,6 +28,10 @@ import { useEffect, type RefObject } from 'react';
 const PARALLAX = { vh: 0.12, minPx: 60, maxPx: 200 };
 /** how quickly the parallax catches up with the scroll position (seconds; lower = tighter) */
 const FOLLOW_SECONDS = 0.3;
+/** how much the portfolio panel lags behind the scroll (px), making it feel heavy / slow */
+const PANEL_LAG_PX = 55;
+/** how quickly the panel catches up (seconds; higher = slower, more floaty) */
+const PANEL_FOLLOW_SECONDS = 0.18;
 
 const clamp01 = (n: number) => (n < 0 ? 0 : n > 1 ? 1 : n);
 
@@ -46,6 +50,7 @@ export function useScrollStage({ stageRef, heroRef, parallax }: Options) {
 
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const useParallax = parallax && !reduceMotion;
+    const isMobile = window.matchMedia('(max-width: 767px)').matches;
 
     let heroHeight = hero.offsetHeight || window.innerHeight;
     let covered = false;
@@ -53,6 +58,12 @@ export function useScrollStage({ stageRef, heroRef, parallax }: Options) {
     let current = 0;
     let frame = 0;
     let last = 0;
+
+    // panel smoothing state
+    let panelTarget = 0;
+    let panelCurrent = 0;
+    let panelFrame = 0;
+    let panelLast = 0;
 
     let layers: HTMLElement[] = [];
     const findLayers = () => {
@@ -80,6 +91,29 @@ export function useScrollStage({ stageRef, heroRef, parallax }: Options) {
       frame = requestAnimationFrame(step);
     };
 
+    const stepPanel = (now: number) => {
+      const dt = Math.min(0.064, (now - panelFrame > 0 ? (now - panelLast) / 1000 : 0.016));
+      panelLast = now;
+      panelCurrent += (panelTarget - panelCurrent) * (1 - Math.exp(-dt / PANEL_FOLLOW_SECONDS));
+      if (Math.abs(panelTarget - panelCurrent) < 0.3) {
+        panelCurrent = panelTarget;
+        panelFrame = 0;
+        applyPanel();
+        return;
+      }
+      applyPanel();
+      panelFrame = requestAnimationFrame(stepPanel);
+    };
+
+    const applyPanel = () => {
+      const panel = stage.querySelector<HTMLElement>('#portfolio');
+      if (panel) {
+        const lag = panelCurrent;
+        if (Math.abs(lag) < 0.3) panel.style.transform = '';
+        else panel.style.transform = `translateY(${lag.toFixed(2)}px)`;
+      }
+    };
+
     const update = () => {
       const y = window.scrollY;
 
@@ -90,6 +124,19 @@ export function useScrollStage({ stageRef, heroRef, parallax }: Options) {
         if (!frame && Math.abs(target - current) > 0.1) {
           last = performance.now();
           frame = requestAnimationFrame(step);
+        }
+      }
+
+      // smoothed portfolio panel: it lags behind the scroll while rising over the hero,
+      // so the cover-up feels slow and heavy instead of snapping 1:1
+      if (!isMobile) {
+        const coverProgress = clamp01(y / heroHeight);
+        // the panel only gets pushed down (lag) while it's actively covering the hero
+        const wantLag = coverProgress > 0 && coverProgress < 1 ? -PANEL_LAG_PX * coverProgress : 0;
+        panelTarget = wantLag;
+        if (!panelFrame && Math.abs(panelTarget - panelCurrent) > 0.3) {
+          panelLast = performance.now();
+          panelFrame = requestAnimationFrame(stepPanel);
         }
       }
 
@@ -115,11 +162,14 @@ export function useScrollStage({ stageRef, heroRef, parallax }: Options) {
 
     return () => {
       if (frame) cancelAnimationFrame(frame);
+      if (panelFrame) cancelAnimationFrame(panelFrame);
       ro.disconnect();
       window.removeEventListener('scroll', update);
       window.removeEventListener('resize', onResize);
       stage.removeAttribute('data-covered');
       for (const layer of layers) layer.style.transform = '';
+      const panel = stage.querySelector<HTMLElement>('#portfolio');
+      if (panel) panel.style.transform = '';
     };
   }, [stageRef, heroRef, parallax]);
 }
