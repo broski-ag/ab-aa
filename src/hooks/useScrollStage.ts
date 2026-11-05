@@ -31,7 +31,7 @@ const FOLLOW_SECONDS = 120;
 /** how much the portfolio panel lags behind the scroll (px), making it feel heavy / slow */
 const PANEL_LAG_PX = 1000;
 /** how quickly the panel catches up (seconds; higher = slower, more floaty) */
-const PANEL_FOLLOW_SECONDS = 0.18;
+const PANEL_FOLLOW_SECONDS = 600;
 
 const clamp01 = (n: number) => (n < 0 ? 0 : n > 1 ? 1 : n);
 
