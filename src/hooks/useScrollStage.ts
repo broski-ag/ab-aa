@@ -29,7 +29,7 @@ const PARALLAX = { vh: 0.12, minPx: 60, maxPx: 200 };
 /** how quickly the parallax catches up with the scroll position (seconds; lower = tighter) */
 const FOLLOW_SECONDS = 0.3;
 /** how much the portfolio panel lags behind the scroll (px), making it feel heavy / slow */
-const PANEL_LAG_PX = 1000;
+const PANEL_LAG_PX = 500;
 /** how quickly the panel catches up (seconds; higher = slower, more floaty) */
 const PANEL_FOLLOW_SECONDS = 0.18;
 
