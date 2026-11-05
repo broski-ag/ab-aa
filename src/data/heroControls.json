@@ -1,0 +1,5 @@
+{
+  "version": 1,
+  "desktop": { "axis": "width", "elements": {} },
+  "mobile": { "axis": "aspect", "elements": {} }
+}
