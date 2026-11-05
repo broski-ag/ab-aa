@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Aamir Naqvi</title>
+    <meta name="description" content="Aamir Naqvi — video editor. Reels, brand films and motion design." />
+
+    <!-- Preconnect to external origins.
+         Google Fonts: the font files are fetched in CORS mode, so `crossorigin`.
+         jsDelivr: <video> requests are NOT CORS requests, so this one must NOT have
+         `crossorigin` — with it, the browser opens a connection no video request can reuse. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+
+    <!-- ===================================================================================
+         Hero assets for the composition this screen will actually show.
+         The conditions below are the same rule as computeLayout() in src/utils/layout.ts:
+           portrait composition : aspect <= 0.62, OR (width >= 960px AND aspect <= 0.72),
+                                  OR (width <= 767px AND aspect <= 0.99)
+           landscape composition: everything else
+         If you ever change that rule, change these (and the <source media> + the
+         @media block for #site-bg in src/index.css) to match.
+         =================================================================================== -->
+    <link rel="preload" as="image" href="/pc/bg.webp" fetchpriority="high"
+          media="(min-aspect-ratio: 621/1000) and (min-width: 768px) and (max-width: 959px), (min-aspect-ratio: 721/1000) and (min-width: 960px), (min-aspect-ratio: 991/1000)">
+    <link rel="preload" as="image" href="/pc/me.webp" fetchpriority="high"
+          media="(min-aspect-ratio: 621/1000) and (min-width: 768px) and (max-width: 959px), (min-aspect-ratio: 721/1000) and (min-width: 960px), (min-aspect-ratio: 991/1000)">
+    <link rel="preload" as="image" href="/pc/me2.webp" fetchpriority="high"
+          media="(min-aspect-ratio: 621/1000) and (min-width: 768px) and (max-width: 959px), (min-aspect-ratio: 721/1000) and (min-width: 960px), (min-aspect-ratio: 991/1000)">
+    <link rel="preload" as="fetch" href="/hero/desktop.html" crossorigin="anonymous"
+          media="(min-aspect-ratio: 621/1000) and (min-width: 768px) and (max-width: 959px), (min-aspect-ratio: 721/1000) and (min-width: 960px), (min-aspect-ratio: 991/1000)">
+
+    <link rel="preload" as="image" href="/mobile/mbbg.webp" fetchpriority="high"
+          media="(max-aspect-ratio: 62/100), (min-width: 960px) and (max-aspect-ratio: 72/100), (max-width: 767px) and (max-aspect-ratio: 99/100)">
+    <link rel="preload" as="image" href="/mobile/mbme.webp" fetchpriority="high"
+          media="(max-aspect-ratio: 62/100), (min-width: 960px) and (max-aspect-ratio: 72/100), (max-width: 767px) and (max-aspect-ratio: 99/100)">
+    <link rel="preload" as="fetch" href="/hero/mobile.html" crossorigin="anonymous"
+          media="(max-aspect-ratio: 62/100), (min-width: 960px) and (max-aspect-ratio: 72/100), (max-width: 767px) and (max-aspect-ratio: 99/100)">
+
+    <style>
+      /* just enough to paint the page colour immediately; everything else is in the
+         (render-blocking, ~6 KB gzipped) stylesheet so React never renders unstyled */
+      html,body{margin:0;background:#f5f2ec}
+    </style>
+
+    <!-- Critical fonts first (Bebas Neue = hero name, IBM Plex Sans = body) -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Sans:ital,wdth@0,75&display=swap" media="print" onload="this.media='all'">
+    <!-- Non-critical fonts deferred (Akshar = testimonial labels, Anton = fallback) -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Akshar:wght@300..700&family=Anton&display=swap" media="print" onload="this.media='all'">
+    <noscript>
+      <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Sans:ital,wdth@0,75&family=Akshar:wght@300..700&family=Anton&display=swap" rel="stylesheet">
+    </noscript>
+  </head>
+  <body>
+    <!-- Fixed background. Static markup, so it is on screen at first paint — before any
+         JavaScript runs — instead of waiting for React. Only the file that matches the
+         screen is downloaded (<picture>). -->
+    <div id="site-bg" aria-hidden="true">
+      <picture>
+        <source media="(max-aspect-ratio: 62/100), (min-width: 960px) and (max-aspect-ratio: 72/100), (max-width: 767px) and (max-aspect-ratio: 99/100)" srcset="/mobile/mbbg.webp" />
+        <img src="/pc/bg.webp" alt="" fetchpriority="high" decoding="async" />
+      </picture>
+      <div class="bg-tint"></div>
+    </div>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx" fetchpriority="high"></script>
+  </body>
+</html>
